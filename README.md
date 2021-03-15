@@ -24,5 +24,5 @@ Total distance: 14.29 km
 </p>
 
 <p align="center">
-<img src="results/simulated_annealing_solution.jpg" width="800px" />
+<img src="results/simulated_annealing_solution.jpeg" width="800px" />
 </p>
