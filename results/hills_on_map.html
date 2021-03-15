@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_98f92bc5a4a74d0e9401081ef81e1c0d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_98f92bc5a4a74d0e9401081ef81e1c0d" ></div>
+        
+</body>
+<script>    
+    
+            var map_98f92bc5a4a74d0e9401081ef81e1c0d = L.map(
+                "map_98f92bc5a4a74d0e9401081ef81e1c0d",
+                {
+                    center: [60.449977, 22.284414],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 14,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+            L.control.scale().addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+
+            
+
+        
+    
+            var tile_layer_a3658eed23e64c37b6b507b99c5aeb74 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            var marker_ee4aaa9533de4c239d86ad693ecf2e1a = L.marker(
+                [60.448722, 22.276455],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_ee4aaa9533de4c239d86ad693ecf2e1a.bindTooltip(
+                `<div>
+                     Vartiovuori
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_0db70ed51d934e1f9ffa1274dbc12481 = L.marker(
+                [60.442719, 22.243017],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_0db70ed51d934e1f9ffa1274dbc12481.bindTooltip(
+                `<div>
+                     Kakolanmäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_bc4f5f4ae8cc4ace80d321701ddbfded = L.marker(
+                [60.446271, 22.2677],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_bc4f5f4ae8cc4ace80d321701ddbfded.bindTooltip(
+                `<div>
+                     Samppalinnanmäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_bf293a8f896d43c9a08bd4625e8d5a3c = L.marker(
+                [60.454736, 22.284642],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_bf293a8f896d43c9a08bd4625e8d5a3c.bindTooltip(
+                `<div>
+                     Yliopistonmäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_c6985904be7a4b0f89c6268eaff0befb = L.marker(
+                [60.431133, 22.236316],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_c6985904be7a4b0f89c6268eaff0befb.bindTooltip(
+                `<div>
+                     Korppolaismäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_1bfa12fc4ee64140bba73c9c108f0fca = L.marker(
+                [60.453881, 22.261886],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_1bfa12fc4ee64140bba73c9c108f0fca.bindTooltip(
+                `<div>
+                     Puolalanmäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_e86c120c229f409aba22442d85ab2385 = L.marker(
+                [60.449977, 22.284414],
+                {}
+            ).addTo(map_98f92bc5a4a74d0e9401081ef81e1c0d);
+        
+    
+            marker_e86c120c229f409aba22442d85ab2385.bindTooltip(
+                `<div>
+                     Kerttulinmäki
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var measure_control_521c695f82424395a36224208131f63f = new L.Control.Measure(
+                {"position": "topright", "primaryAreaUnit": "sqmeters", "primaryLengthUnit": "meters", "secondaryAreaUnit": "acres", "secondaryLengthUnit": "miles"});
+            map_98f92bc5a4a74d0e9401081ef81e1c0d.addControl(measure_control_521c695f82424395a36224208131f63f);
+
+        
+</script>
