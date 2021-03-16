@@ -1,7 +1,7 @@
 import copy
 import logging
 import random
-from typing import List, Callable
+from typing import List, Callable, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,11 +9,11 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-def exp_schedule(t: float, max_temperature: float = 1.0, decay_constant: float = 0.005):
+def exp_schedule(t: float, max_temperature: float = 1.0, decay_constant: float = 0.005) -> float:
     return max_temperature * np.exp(-decay_constant * t)
 
 
-def random_swap(route: List[int], mutation_probability: float = 0.2):
+def random_swap(route: List[int], mutation_probability: float = 0.2) -> List[int]:
     for k in range(len(route)):
         if random.random() < mutation_probability:
             i, j = random.sample([k + 1 for k in range(len(route) - 2)], 2)
@@ -24,13 +24,14 @@ def random_swap(route: List[int], mutation_probability: float = 0.2):
     return route
 
 
-def energy_probability(delta_cost, temperature, k = 1):
-    return np.exp(-delta_cost / (k*temperature))
+def energy_probability(delta_cost: float, temperature: float, k: float = 1) -> float:
+    return np.exp(-delta_cost / (k * temperature))
 
 
 class Optimizer:
 
-    def __init__(self, cost_matrix: np.ndarray,
+    def __init__(self,
+                 cost_matrix: np.ndarray,
                  mutation_probability: float = 0.1,
                  max_iter: int = 1000,
                  min_temperature: float = 1e-12,
@@ -53,7 +54,7 @@ class Optimizer:
         self.probabilities = []
         self.delta_costs = []
 
-    def run(self, init_route: List[int]):
+    def run(self, init_route: List[int]) -> Tuple[List[int], float]:
         current_route = init_route.copy()
         best_route = current_route.copy()
 
