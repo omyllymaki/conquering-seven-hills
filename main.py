@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 from functools import partial
 
 import numpy as np
@@ -59,7 +60,11 @@ optimizer = Optimizer(distances_matrix,
 
 print("Calculating optimal order of hills")
 init_route = create_init_route(hill_names.index(START_HILL), hill_names.index(END_HILL), distances_matrix.shape[0])
+start_time = time.time()
 optimal_route, total_distance = optimizer.run(init_route)
+end_time = time.time()
+duration_ms = 1000 * (end_time - start_time)
+print(f"Solution took {duration_ms:0.0f} ms")
 optimizer.plot_solution()
 
 print("Creating optimal path")
