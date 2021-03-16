@@ -24,6 +24,10 @@ def random_swap(route: List[int], mutation_probability: float = 0.2):
     return route
 
 
+def energy_probability(delta_cost, temperature, k = 1):
+    return np.exp(-delta_cost / (k*temperature))
+
+
 class Optimizer:
 
     def __init__(self, cost_matrix: np.ndarray,
@@ -32,7 +36,8 @@ class Optimizer:
                  min_temperature: float = 1e-12,
                  cost_threshold: float = -np.inf,
                  schedule_function: Callable = exp_schedule,
-                 mutation_function: Callable = random_swap):
+                 mutation_function: Callable = random_swap,
+                 probability_function: Callable = energy_probability):
 
         self.cost_matrix = cost_matrix
         self.mutation_probability = mutation_probability
@@ -41,6 +46,7 @@ class Optimizer:
         self.cost_threshold = cost_threshold
         self.schedule_function = schedule_function
         self.mutation_function = mutation_function
+        self.probability_function = probability_function
 
         self.temperatures = []
         self.costs = []
@@ -85,7 +91,7 @@ class Optimizer:
                         logger.info("Cost reached required threshold value. Return solution.")
                         return best_route, best_cost
             else:
-                probability = np.exp(-delta_cost / temperature)
+                probability = self.probability_function(delta_cost, temperature)
                 if probability > random.uniform(0.0, 1.0):
                     current_route = mutated_route.copy()
                     current_cost = mutated_route_cost
