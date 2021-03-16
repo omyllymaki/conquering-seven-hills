@@ -1,19 +1,36 @@
 import logging
+import random
+from functools import partial
 
-import folium
-import networkx as nx
 import numpy as np
-import osmnx as ox
-from folium import DivIcon
+from osmnx import graph_from_place, config
 
 from constants import HILLS, USE_SAVED_DISTANCES, START_HILL, END_HILL
 from route_optimization import Optimizer
+from utils import calculate_distance_matrix, create_map, calculate_full_path, create_init_route
 
-ox.config(log_console=False, use_cache=True)
+
+def exp_schedule(t, max_temperature, decay_constant):
+    return max_temperature * np.exp(-decay_constant * t)
+
+
+def random_swap(route, mutation_probability):
+    for k in range(len(route)):
+        if random.random() < mutation_probability:
+            indices = [k + 1 for k in range(len(route) - 2)]  # leave first and last point out; those cannot be changed
+            i, j = random.sample(indices, 2)
+            value_i = route[i]
+            value_j = route[j]
+            route[i] = value_j
+            route[j] = value_i
+    return route
+
+
+config(log_console=False, use_cache=True, cache_folder='./cache')
 logging.basicConfig(level=logging.INFO)
 
 print("Calculating graph")
-graph = ox.graph_from_place('Turku, Finland', network_type='walk')
+graph = graph_from_place('Turku, Finland', network_type='walk')
 
 hill_names, coordinates = [], []
 for name, coord in HILLS.items():
@@ -31,80 +48,25 @@ if USE_SAVED_DISTANCES:
 
 if not USE_SAVED_DISTANCES:
     print("Calculating distances between points")
-    n_hills = len(hill_names)
-    distances_matrix = np.empty((n_hills, n_hills))
-
-    for i in range(n_hills):
-        for j in range(n_hills):
-            orig_node = ox.get_nearest_node(graph, coordinates[i])
-            dest_node = ox.get_nearest_node(graph, coordinates[j])
-            distance = nx.shortest_path_length(G=graph, source=orig_node, target=dest_node, weight='length') / 1000
-            distances_matrix[i][j] = distance
-            print(f"{hill_names[i]} -> {hill_names[j]}: {distance} km")
-
+    distances_matrix = calculate_distance_matrix(graph, coordinates)
     print("Saving distances to file")
     np.savetxt("distances.txt", distances_matrix)
 
-start_index = hill_names.index(START_HILL)
-end_index = hill_names.index(END_HILL)
-init_route = [k for k in range(distances_matrix.shape[0])]
-if start_index in init_route:
-    init_route.remove(start_index)
-if end_index in init_route:
-    init_route.remove(end_index)
-init_route = [start_index] + init_route + [end_index]
-
 optimizer = Optimizer(distances_matrix,
-                      mutation_probability=0.2,
                       max_iter=500,
-                      debug_plot=True)
-route = optimizer.run(init_route)
+                      mutation_function=partial(random_swap, mutation_probability=0.2),
+                      schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005))
 
-print('Simulated annealing solution')
-for i in range(0, len(route)):
-    s = hill_names[route[i]]
-    if i < len(route) - 1:
-        s += " -> "
-    print(s, end='')
-print('\nTotal distance: {0} km'.format(route.cost))
-print()
+print("Calculating optimal order of hills")
+init_route = create_init_route(hill_names.index(START_HILL), hill_names.index(END_HILL), distances_matrix.shape[0])
+optimal_route, total_distance = optimizer.run(init_route)
+optimizer.plot_solution()
 
-print("Plotting route")
-route_map = None
-full_path = []
-distances = []
-for i in range(0, len(route) - 1):
-    from_index = route[i]
-    end_index = route[i + 1]
+print("Creating optimal path")
+full_path, distances = calculate_full_path(graph, optimal_route, coordinates)
 
-    orig_node = ox.get_nearest_node(graph, coordinates[from_index])
-    dest_node = ox.get_nearest_node(graph, coordinates[end_index])
+print("Creating map")
+map = create_map(graph, full_path, optimal_route, hill_names, coordinates, distances)
 
-    path = nx.shortest_path(graph, orig_node, dest_node, weight='length')
-
-    distance = nx.shortest_path_length(G=graph, source=orig_node, target=dest_node, weight='length') / 1000
-    distances.append(distance)
-
-    print(f"{hill_names[from_index]} -> {hill_names[end_index]}: {distance} km ")
-
-    full_path += path[1:]
-
-route_map = ox.plot_route_folium(graph, full_path,
-                                 tiles="OpenStreetMap",
-                                 tooltip=f"Total distance {route.cost:0.2f} km")
-
-for i in range(len(route) - 1):
-    index = route[i]
-    folium.Marker(coordinates[index],
-                  tooltip=f"{i}: {hill_names[index]}; {distances[i]:0.2f} km to next hill").add_to(route_map)
-    folium.map.Marker(
-        coordinates[index],
-        icon=DivIcon(
-            icon_size=(250, 36),
-            icon_anchor=(0, 0),
-            html='<div style="font-size: 15pt">' + str(i) + '</div>',
-        )
-    ).add_to(route_map)
-
-print("Saving route to file")
-route_map.save('results/route.html')
+print("Saving map to file")
+map.save('results/optimal_route.html')

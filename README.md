@@ -13,15 +13,13 @@ The task is to find shortest walking path for seven hills in Turku. The walk sho
 
 # Results
 
-Shortest path, as suggested by simulated annealing method, with Kerttulinmäki as start and end point:
-
-Kerttulinmäki -> Vartiovuori -> Samppalinnanmäki -> Korppolaismäki -> Kakolanmäki -> Puolalanmäki -> Yliopistonmäki -> Kerttulinmäki
-
-Total distance: 14.29 km
+**Optimal route, total distance 14.29 km**
 
 <p align="center">
-<img src="results/route.jpg" width="800px" />
+<img src="results/optimal_route.jpg" width="800px" />
 </p>
+
+**Simulated annealing solution**
 
 <p align="center">
 <img src="results/simulated_annealing_solution.jpeg" width="800px" />
