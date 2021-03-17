@@ -26,7 +26,10 @@ def random_swap(route: List[int], mutation_probability: float = 0.2) -> List[int
 
 
 def energy_probability(delta_cost: float, temperature: float, k: float = 1) -> float:
-    return np.exp(-delta_cost / (k * temperature))
+    if delta_cost < 0:
+        return 1
+    else:
+        return np.exp(-delta_cost / (k * temperature))
 
 
 class SARouteOptimizer:
@@ -86,9 +89,9 @@ class SARouteOptimizer:
             delta_cost = mutated_route_cost - current_cost
 
             is_accepted = False
-            if delta_cost < 0:
+            probability = self.probability_function(delta_cost, temperature)
+            if probability >= random.uniform(0.0, 1.0):
                 is_accepted = True
-                probability = 1
                 current_route = mutated_route.copy()
                 current_cost = mutated_route_cost
                 if current_cost < best_cost:
@@ -98,12 +101,6 @@ class SARouteOptimizer:
                     if best_cost < self.cost_threshold:
                         logger.info("Cost reached required threshold value. Return solution.")
                         return best_route, best_cost
-            else:
-                probability = self.probability_function(delta_cost, temperature)
-                if probability > random.uniform(0.0, 1.0):
-                    is_accepted = True
-                    current_route = mutated_route.copy()
-                    current_cost = mutated_route_cost
 
             logger.debug(f"Round {t}: temperature {temperature}; cost {current_cost}")
 
