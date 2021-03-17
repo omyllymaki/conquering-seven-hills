@@ -1,10 +1,11 @@
-import copy
 import logging
 import random
 from typing import List, Callable, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import colors
+from matplotlib.colors import LinearSegmentedColormap
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ def energy_probability(delta_cost: float, temperature: float, k: float = 1) -> f
     return np.exp(-delta_cost / (k * temperature))
 
 
-class Optimizer:
+class SARouteOptimizer:
 
     def __init__(self,
                  cost_matrix: np.ndarray,
@@ -53,6 +54,7 @@ class Optimizer:
         self.costs = []
         self.probabilities = []
         self.delta_costs = []
+        self.is_accepted = []
 
     def run(self, init_route: List[int]) -> Tuple[List[int], float]:
         current_route = init_route.copy()
@@ -62,6 +64,7 @@ class Optimizer:
         best_cost = self._calculate_cost(best_route)
 
         probability, delta_cost = 0, 0
+        is_accepted = True
 
         for t in range(self.max_iter):
 
@@ -75,13 +78,17 @@ class Optimizer:
             self.costs.append(current_cost)
             self.probabilities.append(probability)
             self.delta_costs.append(delta_cost)
+            self.is_accepted.append(is_accepted)
 
             mutated_route = self.mutation_function(current_route.copy())
             mutated_route_cost = self._calculate_cost(mutated_route)
             logger.debug(f"Mutated route: {mutated_route}; cost {mutated_route_cost}")
             delta_cost = mutated_route_cost - current_cost
 
+            is_accepted = False
             if delta_cost < 0:
+                is_accepted = True
+                probability = 1
                 current_route = mutated_route.copy()
                 current_cost = mutated_route_cost
                 if current_cost < best_cost:
@@ -94,6 +101,7 @@ class Optimizer:
             else:
                 probability = self.probability_function(delta_cost, temperature)
                 if probability > random.uniform(0.0, 1.0):
+                    is_accepted = True
                     current_route = mutated_route.copy()
                     current_cost = mutated_route_cost
 
@@ -104,22 +112,39 @@ class Optimizer:
 
     def plot_solution(self):
         plt.figure(1)
-        plt.subplot(1, 2, 1)
-        plt.cla()
-        plt.plot(self.costs)
-        plt.title("Cost")
-        plt.subplot(3, 2, 2)
-        plt.cla()
-        plt.plot(self.temperatures)
-        plt.title("Temperature")
-        plt.subplot(3, 2, 4)
-        plt.cla()
-        plt.plot(self.probabilities)
+
+        ax1 = plt.subplot(1, 2, 1)
+
+        color = 'tab:blue'
+        ax1.plot(self.costs, color=color)
+        ax1.set_ylabel('Cost', color=color)
+
+        color = 'tab:red'
+        ax2 = ax1.twinx()
+        ax2.plot(self.temperatures, color=color)
+        ax2.set_ylabel('Temperature', color=color)
+
+        ax1.set_xlabel("Iteration")
+        plt.title("Cost & temperature")
+
+        plt.subplot(1, 2, 2)
+        sc = plt.scatter(self.temperatures,
+                         self.delta_costs,
+                         c=np.array(self.probabilities) + 0.001,
+                         norm=colors.LogNorm(),
+                         edgecolors="k",
+                         cmap=LinearSegmentedColormap.from_list("MyCmapName", ["b", "r"]))
+        plt.colorbar(sc)
+        plt.gca().invert_xaxis()
+        plt.plot(np.array(self.temperatures)[self.is_accepted],
+                 np.array(self.delta_costs)[self.is_accepted],
+                 "kx",
+                 markersize=3)
+
+        plt.xlabel("Temperature")
+        plt.ylabel("Cost change")
         plt.title("Probability")
-        plt.subplot(3, 2, 6)
-        plt.cla()
-        plt.plot(self.delta_costs)
-        plt.title("Cost change")
+
         plt.tight_layout()
         plt.show()
 

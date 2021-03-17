@@ -7,7 +7,7 @@ import numpy as np
 from osmnx import graph_from_place, config
 
 from constants import HILLS, USE_SAVED_DISTANCES, START_HILL, END_HILL
-from route_optimization import Optimizer
+from route_optimization import SARouteOptimizer
 from utils import calculate_distance_matrix, create_map, calculate_full_path, create_init_route
 
 
@@ -53,10 +53,10 @@ if not USE_SAVED_DISTANCES:
     print("Saving distances to file")
     np.savetxt("distances.txt", distances_matrix)
 
-optimizer = Optimizer(distances_matrix,
-                      max_iter=500,
-                      mutation_function=partial(random_swap, mutation_probability=0.2),
-                      schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005))
+optimizer = SARouteOptimizer(distances_matrix,
+                             max_iter=500,
+                             mutation_function=partial(random_swap, mutation_probability=0.2),
+                             schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005))
 
 print("Calculating optimal order of hills")
 init_route = create_init_route(hill_names.index(START_HILL), hill_names.index(END_HILL), distances_matrix.shape[0])
