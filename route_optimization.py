@@ -66,7 +66,7 @@ class SARouteOptimizer:
         current_cost = self._calculate_cost(current_route)
         best_cost = self._calculate_cost(best_route)
 
-        probability, delta_cost = 0, 0
+        probability, delta_cost = 1, 0
         is_accepted = True
 
         for t in range(self.max_iter):
