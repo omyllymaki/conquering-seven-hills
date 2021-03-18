@@ -1,8 +1,5 @@
 import logging
-import random
 import time
-from functools import partial
-from typing import List
 
 import numpy as np
 from osmnx import graph_from_place, config
