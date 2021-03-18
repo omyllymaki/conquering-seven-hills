@@ -8,33 +8,22 @@ import numpy as np
 from osmnx import graph_from_place, config
 
 from constants import HILLS, USE_SAVED_DISTANCES, START_HILL, END_HILL
-from route_optimization import SARouteOptimizer
+from route_optimization import SARouteOptimizer, SAModel
 from utils import calculate_distance_matrix, create_map, calculate_full_path, create_init_route
 
 
-def exp_schedule(t, max_temperature, decay_constant):
-    return max_temperature * np.exp(-decay_constant * t)
+class Model(SAModel):
 
+    def __init__(self, cost_matrix):
+        self.cost_matrix = cost_matrix
 
-def random_swap(route, mutation_probability):
-    for k in range(len(route)):
-        if random.random() < mutation_probability:
-            indices = [k + 1 for k in range(len(route) - 2)]  # leave first and last point out; those cannot be changed
-            i, j = random.sample(indices, 2)
-            value_i = route[i]
-            value_j = route[j]
-            route[i] = value_j
-            route[j] = value_i
-    return route
-
-
-def route_cost(route: List[int], cost_matrix: np.ndarray) -> float:
-    cost = 0
-    for i in range(len(route) - 1):
-        from_index = route[i]
-        to_index = route[i + 1]
-        cost += cost_matrix[from_index][to_index]
-    return cost
+    def cost(self, route):
+        cost = 0
+        for i in range(len(route) - 1):
+            from_index = route[i]
+            to_index = route[i + 1]
+            cost += self.cost_matrix[from_index][to_index]
+        return cost
 
 
 config(log_console=False, use_cache=True, cache_folder='./cache')
@@ -63,9 +52,7 @@ if not USE_SAVED_DISTANCES:
     print("Saving distances to file")
     np.savetxt("distances.txt", distances_matrix)
 
-optimizer = SARouteOptimizer(cost_function=partial(route_cost, cost_matrix=distances_matrix),
-                             mutation_function=partial(random_swap, mutation_probability=0.2),
-                             schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005),
+optimizer = SARouteOptimizer(model=Model(cost_matrix=distances_matrix),
                              max_iter=1000,
                              max_iter_without_improvement=300)
 
