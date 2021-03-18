@@ -37,21 +37,6 @@ class SAModel:
         return max_temperature * np.exp(-decay_constant * t)
 
     @staticmethod
-    def mutate(route: List[int], mutation_probability: float = 0.2) -> List[int]:
-        """
-        Mutate (modify) given route. This mutated route will be solution candidate that will be accepted or not, based
-        on calculated probability.
-        """
-        for k in range(len(route)):
-            if random.random() < mutation_probability:
-                i, j = random.sample([k + 1 for k in range(len(route) - 2)], 2)
-                value_i = route[i]
-                value_j = route[j]
-                route[i] = value_j
-                route[j] = value_i
-        return route
-
-    @staticmethod
     def probability(delta_cost: float, temperature: float, k: float = 1) -> float:
         """
         Calculate acceptance probability for mutated route, based on cost change (vs. current solution) and temperature.
@@ -60,6 +45,29 @@ class SAModel:
             return 1
         else:
             return np.exp(-delta_cost / (k * temperature))
+
+    def mutate(self, input_route: List[int], mutation_probability: float = 0.2) -> List[int]:
+        """
+        Mutate (modify) given route. This mutated route will be solution candidate that will be accepted or not, based
+        on calculated probability.
+        """
+        route = input_route.copy()
+        for k in range(len(route)):
+            if random.random() < mutation_probability:
+                self._swap(route)
+
+        # Make sure that at least one change is made to input route
+        if route == input_route:
+            self._swap(route)
+
+        return route
+
+    def _swap(self, route):
+        i, j = random.sample([k + 1 for k in range(len(route) - 2)], 2)
+        value_i = route[i]
+        value_j = route[j]
+        route[i] = value_j
+        route[j] = value_i
 
 
 class SARouteOptimizer:
