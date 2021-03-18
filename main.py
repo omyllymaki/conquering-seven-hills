@@ -2,6 +2,7 @@ import logging
 import random
 import time
 from functools import partial
+from typing import List
 
 import numpy as np
 from osmnx import graph_from_place, config
@@ -25,6 +26,15 @@ def random_swap(route, mutation_probability):
             route[i] = value_j
             route[j] = value_i
     return route
+
+
+def route_cost(route: List[int], cost_matrix: np.ndarray) -> float:
+    cost = 0
+    for i in range(len(route) - 1):
+        from_index = route[i]
+        to_index = route[i + 1]
+        cost += cost_matrix[from_index][to_index]
+    return cost
 
 
 config(log_console=False, use_cache=True, cache_folder='./cache')
@@ -53,10 +63,10 @@ if not USE_SAVED_DISTANCES:
     print("Saving distances to file")
     np.savetxt("distances.txt", distances_matrix)
 
-optimizer = SARouteOptimizer(distances_matrix,
-                             max_iter=500,
+optimizer = SARouteOptimizer(cost_function=partial(route_cost, cost_matrix=distances_matrix),
                              mutation_function=partial(random_swap, mutation_probability=0.2),
-                             schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005))
+                             schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005),
+                             max_iter=500)
 
 print("Calculating optimal order of hills")
 init_route = create_init_route(hill_names.index(START_HILL), hill_names.index(END_HILL), distances_matrix.shape[0])

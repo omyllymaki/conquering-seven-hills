@@ -35,8 +35,7 @@ def energy_probability(delta_cost: float, temperature: float, k: float = 1) -> f
 class SARouteOptimizer:
 
     def __init__(self,
-                 cost_matrix: np.ndarray,
-                 mutation_probability: float = 0.1,
+                 cost_function: Callable,
                  max_iter: int = 1000,
                  min_temperature: float = 1e-12,
                  cost_threshold: float = -np.inf,
@@ -44,8 +43,7 @@ class SARouteOptimizer:
                  mutation_function: Callable = random_swap,
                  probability_function: Callable = energy_probability):
 
-        self.cost_matrix = cost_matrix
-        self.mutation_probability = mutation_probability
+        self.cost_function = cost_function
         self.max_iter = max_iter
         self.min_temperature = min_temperature
         self.cost_threshold = cost_threshold
@@ -63,8 +61,8 @@ class SARouteOptimizer:
         current_route = init_route.copy()
         best_route = current_route.copy()
 
-        current_cost = self._calculate_cost(current_route)
-        best_cost = self._calculate_cost(best_route)
+        current_cost = self.cost_function(current_route)
+        best_cost = self.cost_function(best_route)
 
         probability, delta_cost = 1, 0
         is_accepted = True
@@ -84,7 +82,7 @@ class SARouteOptimizer:
             self.is_accepted.append(is_accepted)
 
             mutated_route = self.mutation_function(current_route.copy())
-            mutated_route_cost = self._calculate_cost(mutated_route)
+            mutated_route_cost = self.cost_function(mutated_route)
             logger.debug(f"Mutated route: {mutated_route}; cost {mutated_route_cost}")
             delta_cost = mutated_route_cost - current_cost
 
@@ -144,11 +142,3 @@ class SARouteOptimizer:
 
         plt.tight_layout()
         plt.show()
-
-    def _calculate_cost(self, route: List[int]) -> float:
-        cost = 0
-        for i in range(len(route) - 1):
-            from_index = route[i]
-            to_index = route[i + 1]
-            cost += self.cost_matrix[from_index][to_index]
-        return cost
