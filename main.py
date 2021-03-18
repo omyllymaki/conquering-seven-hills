@@ -66,7 +66,8 @@ if not USE_SAVED_DISTANCES:
 optimizer = SARouteOptimizer(cost_function=partial(route_cost, cost_matrix=distances_matrix),
                              mutation_function=partial(random_swap, mutation_probability=0.2),
                              schedule_function=partial(exp_schedule, max_temperature=1.0, decay_constant=0.005),
-                             max_iter=500)
+                             max_iter=1000,
+                             max_iter_without_improvement=300)
 
 print("Calculating optimal order of hills")
 init_route = create_init_route(hill_names.index(START_HILL), hill_names.index(END_HILL), distances_matrix.shape[0])

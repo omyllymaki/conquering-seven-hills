@@ -36,7 +36,8 @@ class SARouteOptimizer:
 
     def __init__(self,
                  cost_function: Callable,
-                 max_iter: int = 1000,
+                 max_iter: int = 10000,
+                 max_iter_without_improvement: int = 2000,
                  min_temperature: float = 1e-12,
                  cost_threshold: float = -np.inf,
                  schedule_function: Callable = exp_schedule,
@@ -45,6 +46,7 @@ class SARouteOptimizer:
 
         self.cost_function = cost_function
         self.max_iter = max_iter
+        self.max_iter_without_improvement = max_iter_without_improvement
         self.min_temperature = min_temperature
         self.cost_threshold = cost_threshold
         self.schedule_function = schedule_function
@@ -66,9 +68,11 @@ class SARouteOptimizer:
 
         probability, delta_cost = 1, 0
         is_accepted = True
+        no_improvement_counter = 0
 
         for t in range(self.max_iter):
 
+            no_improvement_counter += 1
             temperature = self.schedule_function(t)
 
             if temperature < self.min_temperature:
@@ -96,11 +100,16 @@ class SARouteOptimizer:
                     best_route = current_route.copy()
                     best_cost = current_cost
                     logger.info(f"Found better solution; round {t}; cost {best_cost}")
+                    no_improvement_counter = 0
                     if best_cost < self.cost_threshold:
                         logger.info("Cost reached required threshold value. Return solution.")
                         return best_route, best_cost
 
             logger.debug(f"Round {t}: temperature {temperature}; cost {current_cost}")
+
+            if no_improvement_counter > self.max_iter_without_improvement:
+                logger.info("Max iteration number without improvement reached. Return solution.")
+                return best_route, best_cost
 
         logger.info("Max iteration number reached. Return solution.")
         return best_route, best_cost
